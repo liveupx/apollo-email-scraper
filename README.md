@@ -2,7 +2,6 @@
 
 # 📋 Apollo Free Email Scraper 
 
-## 📖 Description
 Apollo Free Email Scraper  is a Chrome extension designed to simplify the process of scraping data from web pages with just a single click. This tool is perfect for users who need to collect data quickly and efficiently without dealing with complex scraping tools.
 
 ## ✨ Features
