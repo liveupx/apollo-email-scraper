@@ -46,7 +46,7 @@ We are actively looking for contributors to help improve Apollo Free Email Scrap
 ## 💼 Call for Sponsors
 Apollo Free Email Scraper  is an open-source project maintained by the community. If you find this tool useful, please consider sponsoring us to help cover development costs and motivate the contributors. You can sponsor us through GitHub Sponsors or Buy Me a Coffee.
 
-- [GitHub Sponsors](https://github.com/sponsors/liveupx)
+- [Sponsors]([https://github.com/sponsors/liveupx](https://opencollective.com/apollo-free-email-scraper))
 - [Buy Me a Coffee](https://www.buymeacoffee.com/itsmikepowers)
 
 ## 📜 License
