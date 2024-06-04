@@ -50,7 +50,7 @@ Apollo Free Email Scraper  is an open-source project maintained by the community
 - [Buy Me a Coffee](https://www.buymeacoffee.com/itsmikepowers)
 
 ## 📜 License
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License. See the [LICENSE](LICENSE.md) file for details.
 
 ## 📬 Contact
 For any inquiries or feedback, feel free to open an issue on GitHub or contact us directly at [contact@liveupx.com](mailto:contact@liveupx.com).
