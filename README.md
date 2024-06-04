@@ -1,6 +1,6 @@
-# 📋 Apollo Free Email Scraper 
+# 📋 Apollo Free Data Scraper 
 
-Apollo Free Email Scraper  is a Chrome extension designed to simplify the process of scraping data from web pages with just a single click. This tool is perfect for users who need to collect data quickly and efficiently without dealing with complex scraping tools.
+Apollo Free Data Scraper  is a Chrome extension designed to simplify the process of scraping data from web pages with just a single click. This tool is perfect for users who need to collect data quickly and efficiently without dealing with complex scraping tools.
 
 ## ✨ Features
 - 🖱️ Easy-to-use interface for scraping data
@@ -18,13 +18,13 @@ Apollo Free Email Scraper  is a Chrome extension designed to simplify the proces
 4. Click "Load unpacked" and select the cloned repository folder.
 
 ## 🛠️ Usage
-1. Click on the Apollo Free Email Scraper  icon in your Chrome toolbar.
+1. Click on the Apollo Free Data Scraper  icon in your Chrome toolbar.
 2. Set the time interval between page scrapes.
 3. Click "Scrape List" to start scraping data.
 4. Enter a file name and click "Download CSV" to save the scraped data.
 
 ## 👩‍💻 Development
-To contribute to Apollo Free Email Scraper , follow these steps:
+To contribute to Apollo Free Data Scraper , follow these steps:
 1. Fork the repository.
 2. Create a new branch:
    ```bash
@@ -41,10 +41,10 @@ To contribute to Apollo Free Email Scraper , follow these steps:
 5. Open a pull request.
 
 ## 🌟 Call for Contributors
-We are actively looking for contributors to help improve Apollo Free Email Scraper . Whether you're interested in adding new features, fixing bugs, or improving documentation, your contributions are welcome!
+We are actively looking for contributors to help improve Apollo Free Data Scraper . Whether you're interested in adding new features, fixing bugs, or improving documentation, your contributions are welcome!
 
 ## 💼 Call for Sponsors
-Apollo Free Email Scraper  is an open-source project maintained by the community. If you find this tool useful, please consider sponsoring us to help cover development costs and motivate the contributors. You can sponsor us through GitHub Sponsors or Buy Me a Coffee.
+Apollo Free Data Scraper  is an open-source project maintained by the community. If you find this tool useful, please consider sponsoring us to help cover development costs and motivate the contributors. You can sponsor us through GitHub Sponsors or Buy Me a Coffee.
 
 - [Sponsors](https://opencollective.com/apollo-free-email-scraper)
 - [Buy Me a Coffee](https://www.buymeacoffee.com/itsmikepowers)
@@ -57,4 +57,4 @@ For any inquiries or feedback, feel free to open an issue on GitHub or contact u
 
 ---
 
-By providing comprehensive documentation and actively engaging with the community, you can ensure that Apollo Free Email Scraper  grows into a successful open-source project.
+By providing comprehensive documentation and actively engaging with the community, you can ensure that Apollo Free Data Scraper  grows into a successful open-source project.
