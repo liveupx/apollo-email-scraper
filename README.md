@@ -46,8 +46,7 @@ We are actively looking for contributors to help improve Apollo Free Data Scrape
 ## 💼 Call for Sponsors
 Apollo Free Data Scraper  is an open-source project maintained by the community. If you find this tool useful, please consider sponsoring us to help cover development costs and motivate the contributors. You can sponsor us through GitHub Sponsors or Buy Me a Coffee.
 
-- [Sponsors](https://opencollective.com/apollo-free-email-scraper)
-- [Buy Me a Coffee](https://www.buymeacoffee.com/itsmikepowers)
+- [Sponsors/Buy Me a Coffee](https://opencollective.com/apollo-free-email-scraper)
 
 ## 📜 License
 This project is licensed under the MIT License. See the [LICENSE](LICENSE.md) file for details.
