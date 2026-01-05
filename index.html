@@ -1,0 +1,1168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apollo Email Scraper — Free & Open Source Chrome Extension</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0a0f;
+            --bg-secondary: #12121a;
+            --bg-card: #16161f;
+            --accent-primary: #6366f1;
+            --accent-secondary: #818cf8;
+            --accent-glow: rgba(99, 102, 241, 0.4);
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --border-color: #2a2a3a;
+            --success: #10b981;
+            --warning: #f59e0b;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Starfield Background */
+        .starfield {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: white;
+            border-radius: 50%;
+            opacity: 0;
+            animation: twinkle 4s ease-in-out infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.2; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(1.2); }
+        }
+
+        /* Gradient Orbs */
+        .orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(100px);
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .orb-1 {
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, transparent 70%);
+            top: -200px;
+            right: -200px;
+            animation: float 20s ease-in-out infinite;
+        }
+
+        .orb-2 {
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(139, 92, 246, 0.1) 0%, transparent 70%);
+            bottom: -100px;
+            left: -100px;
+            animation: float 25s ease-in-out infinite reverse;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0); }
+            50% { transform: translate(30px, 30px); }
+        }
+
+        /* Navigation */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 1.5rem 4rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+            background: rgba(10, 10, 15, 0.8);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-weight: 700;
+            font-size: 1.25rem;
+            color: var(--text-primary);
+            text-decoration: none;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2.5rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.95rem;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: var(--text-primary);
+        }
+
+        .nav-cta {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-family: inherit;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            border: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            color: white;
+            box-shadow: 0 4px 20px var(--accent-glow);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 30px var(--accent-glow);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            background: var(--bg-card);
+            border-color: var(--accent-primary);
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 8rem 2rem 4rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: rgba(99, 102, 241, 0.1);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            border-radius: 100px;
+            font-size: 0.85rem;
+            color: var(--accent-secondary);
+            margin-bottom: 2rem;
+            animation: fadeInUp 0.8s ease;
+        }
+
+        .badge-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--success);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .hero h1 {
+            font-size: clamp(2.5rem, 6vw, 4.5rem);
+            font-weight: 700;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+            animation: fadeInUp 0.8s ease 0.1s backwards;
+        }
+
+        .hero h1 span {
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary), #a78bfa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-description {
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin-bottom: 2.5rem;
+            animation: fadeInUp 0.8s ease 0.2s backwards;
+        }
+
+        .hero-cta {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            justify-content: center;
+            animation: fadeInUp 0.8s ease 0.3s backwards;
+        }
+
+        .hero-cta .btn {
+            padding: 1rem 2rem;
+            font-size: 1rem;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Stats */
+        .stats {
+            display: flex;
+            gap: 4rem;
+            margin-top: 4rem;
+            animation: fadeInUp 0.8s ease 0.4s backwards;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-top: 0.25rem;
+        }
+
+        /* Extension Preview */
+        .preview-section {
+            padding: 6rem 2rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .preview-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .preview-window {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 25px 80px rgba(0, 0, 0, 0.5);
+        }
+
+        .preview-header {
+            background: var(--bg-secondary);
+            padding: 1rem 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .preview-dots {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .preview-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .preview-dot:nth-child(1) { background: #ff5f57; }
+        .preview-dot:nth-child(2) { background: #febc2e; }
+        .preview-dot:nth-child(3) { background: #28c840; }
+
+        .preview-title {
+            flex: 1;
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .preview-content {
+            padding: 2rem;
+        }
+
+        .extension-demo {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            padding: 2rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .extension-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .extension-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .extension-title h3 {
+            font-size: 1.25rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .extension-title p {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .extension-status {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+            padding: 0.5rem 1rem;
+            border-radius: 100px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .demo-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .demo-stat {
+            background: var(--bg-card);
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        .demo-stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--accent-secondary);
+        }
+
+        .demo-stat-label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .demo-controls {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+
+        .demo-btn {
+            padding: 0.75rem 1.25rem;
+            border-radius: 8px;
+            border: none;
+            font-family: inherit;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .demo-btn-primary {
+            background: var(--accent-primary);
+            color: white;
+        }
+
+        .demo-btn-secondary {
+            background: var(--bg-card);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .demo-input {
+            padding: 0.75rem 1rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 0.9rem;
+            flex: 1;
+            min-width: 150px;
+        }
+
+        /* Features Section */
+        .features {
+            padding: 6rem 2rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .section-header {
+            text-align: center;
+            max-width: 600px;
+            margin: 0 auto 4rem;
+        }
+
+        .section-label {
+            display: inline-block;
+            font-size: 0.85rem;
+            color: var(--accent-secondary);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 1rem;
+        }
+
+        .section-title {
+            font-size: clamp(2rem, 4vw, 3rem);
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .section-description {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .feature-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 2rem;
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent-primary);
+            box-shadow: 0 20px 40px rgba(99, 102, 241, 0.1);
+        }
+
+        .feature-icon {
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(139, 92, 246, 0.2));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .feature-card h3 {
+            font-size: 1.25rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .feature-card p {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        /* How It Works */
+        .how-it-works {
+            padding: 6rem 2rem;
+            background: var(--bg-secondary);
+            position: relative;
+            z-index: 1;
+        }
+
+        .steps-container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .step {
+            display: flex;
+            gap: 2rem;
+            margin-bottom: 3rem;
+            align-items: flex-start;
+        }
+
+        .step:last-child {
+            margin-bottom: 0;
+        }
+
+        .step-number {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .step-content {
+            flex: 1;
+        }
+
+        .step-content h3 {
+            font-size: 1.5rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .step-content p {
+            color: var(--text-secondary);
+            font-size: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .code-block {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1rem 1.25rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            color: var(--accent-secondary);
+            overflow-x: auto;
+        }
+
+        /* Installation Section */
+        .installation {
+            padding: 6rem 2rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .install-card {
+            max-width: 800px;
+            margin: 0 auto;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 3rem;
+            text-align: center;
+        }
+
+        .install-methods {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .install-method {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 2rem;
+            transition: all 0.3s ease;
+        }
+
+        .install-method:hover {
+            border-color: var(--accent-primary);
+        }
+
+        .install-method-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .install-method h4 {
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .install-method p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+
+        /* Contribute Section */
+        .contribute {
+            padding: 6rem 2rem;
+            background: var(--bg-secondary);
+            position: relative;
+            z-index: 1;
+        }
+
+        .contribute-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .contribute-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 2.5rem;
+            text-align: center;
+        }
+
+        .contribute-card-icon {
+            font-size: 3rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .contribute-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .contribute-card p {
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+        }
+
+        /* CTA Section */
+        .cta {
+            padding: 8rem 2rem;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .cta-content {
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .cta h2 {
+            font-size: clamp(2rem, 4vw, 3rem);
+            margin-bottom: 1.5rem;
+        }
+
+        .cta p {
+            color: var(--text-secondary);
+            font-size: 1.25rem;
+            margin-bottom: 2rem;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .cta-buttons .btn {
+            padding: 1rem 2rem;
+            font-size: 1rem;
+        }
+
+        /* Footer */
+        footer {
+            padding: 3rem 2rem;
+            border-top: 1px solid var(--border-color);
+            position: relative;
+            z-index: 1;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 2rem;
+        }
+
+        .footer-left {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .footer-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.3s ease;
+        }
+
+        .footer-links a:hover {
+            color: var(--text-primary);
+        }
+
+        .footer-right {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            nav {
+                padding: 1rem 1.5rem;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .hero {
+                padding: 7rem 1.5rem 3rem;
+            }
+
+            .stats {
+                flex-direction: column;
+                gap: 2rem;
+            }
+
+            .step {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .footer-content {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .footer-left {
+                flex-direction: column;
+            }
+        }
+
+        /* Animations on scroll */
+        .animate-on-scroll {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s ease;
+        }
+
+        .animate-on-scroll.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <!-- Background Effects -->
+    <div class="starfield" id="starfield"></div>
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+
+    <!-- Navigation -->
+    <nav>
+        <a href="#" class="logo">
+            <div class="logo-icon">📋</div>
+            Apollo Scraper
+        </a>
+        <ul class="nav-links">
+            <li><a href="#features">Features</a></li>
+            <li><a href="#how-it-works">How It Works</a></li>
+            <li><a href="#installation">Installation</a></li>
+            <li><a href="#contribute">Contribute</a></li>
+        </ul>
+        <div class="nav-cta">
+            <a href="https://github.com/liveupx/apollo-email-scraper" target="_blank" class="btn btn-secondary">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.374 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0112 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z"/></svg>
+                GitHub
+            </a>
+            <a href="https://github.com/liveupx/apollo-email-scraper/archive/refs/heads/main.zip" class="btn btn-primary">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+                Download
+            </a>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="badge">
+            <span class="badge-dot"></span>
+            Free & Open Source • MIT License
+        </div>
+        <h1>Extract Apollo.io Data<br><span>In One Click</span></h1>
+        <p class="hero-description">
+            A powerful Chrome extension that simplifies scraping contact data from Apollo.io. Export thousands of leads to CSV with customizable intervals. No coding required.
+        </p>
+        <div class="hero-cta">
+            <a href="https://github.com/liveupx/apollo-email-scraper/archive/refs/heads/main.zip" class="btn btn-primary">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+                Download Extension
+            </a>
+            <a href="https://github.com/liveupx/apollo-email-scraper" target="_blank" class="btn btn-secondary">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.374 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0112 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z"/></svg>
+                View on GitHub
+            </a>
+        </div>
+        <div class="stats">
+            <div class="stat">
+                <div class="stat-value">100%</div>
+                <div class="stat-label">Free Forever</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value">2,500</div>
+                <div class="stat-label">Contacts per Session</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value">CSV</div>
+                <div class="stat-label">Export Format</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Preview Section -->
+    <section class="preview-section">
+        <div class="preview-container animate-on-scroll">
+            <div class="preview-window">
+                <div class="preview-header">
+                    <div class="preview-dots">
+                        <div class="preview-dot"></div>
+                        <div class="preview-dot"></div>
+                        <div class="preview-dot"></div>
+                    </div>
+                    <div class="preview-title">Apollo Easy Scrape Extension</div>
+                </div>
+                <div class="preview-content">
+                    <div class="extension-demo">
+                        <div class="extension-header">
+                            <div class="extension-icon">📋</div>
+                            <div class="extension-title">
+                                <h3>Apollo Easy Scrape</h3>
+                                <p>By Liveupx</p>
+                            </div>
+                            <div class="extension-status">
+                                <span class="badge-dot"></span>
+                                You found a list!
+                            </div>
+                        </div>
+                        <div class="demo-stats">
+                            <div class="demo-stat">
+                                <div class="demo-stat-value">1,026</div>
+                                <div class="demo-stat-label">Total contacts found</div>
+                            </div>
+                            <div class="demo-stat">
+                                <div class="demo-stat-value">42</div>
+                                <div class="demo-stat-label">Pages to scrape</div>
+                            </div>
+                        </div>
+                        <div class="demo-controls">
+                            <button class="demo-btn demo-btn-primary">🚀 Scrape List</button>
+                            <input type="text" class="demo-input" placeholder="leads-export" value="leads-export">
+                            <button class="demo-btn demo-btn-secondary">📥 Download CSV</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features" id="features">
+        <div class="section-header animate-on-scroll">
+            <span class="section-label">Features</span>
+            <h2 class="section-title">Everything You Need to Extract Leads</h2>
+            <p class="section-description">Built with simplicity in mind, yet powerful enough for professional lead generation.</p>
+        </div>
+        <div class="features-grid">
+            <div class="feature-card animate-on-scroll">
+                <div class="feature-icon">🖱️</div>
+                <h3>One-Click Scraping</h3>
+                <p>Simply navigate to any Apollo.io search results and click a single button to start extracting all contact data automatically.</p>
+            </div>
+            <div class="feature-card animate-on-scroll">
+                <div class="feature-icon">📄</div>
+                <h3>CSV Export</h3>
+                <p>Download all scraped data as a clean, properly formatted CSV file ready to import into your CRM or email tools.</p>
+            </div>
+            <div class="feature-card animate-on-scroll">
+                <div class="feature-icon">⏲️</div>
+                <h3>Custom Intervals</h3>
+                <p>Set the time between page scrapes (1-10 seconds) to avoid rate limiting and ensure reliable data extraction.</p>
+            </div>
+            <div class="feature-card animate-on-scroll">
+                <div class="feature-icon">👤</div>
+                <h3>Smart Name Parsing</h3>
+                <p>Automatically splits full names into first name, last name, and full name columns for easier CRM imports.</p>
+            </div>
+            <div class="feature-card animate-on-scroll">
+                <div class="feature-icon">📱</div>
+                <h3>Phone Formatting</h3>
+                <p>Phone numbers are automatically formatted in a readable format for your convenience.</p>
+            </div>
+            <div class="feature-card animate-on-scroll">
+                <div class="feature-icon">🔓</div>
+                <h3>100% Open Source</h3>
+                <p>MIT licensed and fully transparent. View the code, modify it, or contribute to make it even better.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works -->
+    <section class="how-it-works" id="how-it-works">
+        <div class="section-header animate-on-scroll">
+            <span class="section-label">How It Works</span>
+            <h2 class="section-title">Start Scraping in Minutes</h2>
+            <p class="section-description">No complex setup. No coding required. Just install and go.</p>
+        </div>
+        <div class="steps-container">
+            <div class="step animate-on-scroll">
+                <div class="step-number">1</div>
+                <div class="step-content">
+                    <h3>Install the Extension</h3>
+                    <p>Download the extension and load it into Chrome using Developer Mode. It takes less than a minute.</p>
+                    <div class="code-block">chrome://extensions → Enable Developer Mode → Load Unpacked</div>
+                </div>
+            </div>
+            <div class="step animate-on-scroll">
+                <div class="step-number">2</div>
+                <div class="step-content">
+                    <h3>Navigate to Apollo.io</h3>
+                    <p>Go to Apollo.io and perform your search. Filter by industry, location, title, or any other criteria to find your ideal leads.</p>
+                </div>
+            </div>
+            <div class="step animate-on-scroll">
+                <div class="step-number">3</div>
+                <div class="step-content">
+                    <h3>Click & Scrape</h3>
+                    <p>Open the extension, set your preferred time interval, and click "Scrape List". The extension will automatically navigate through all pages.</p>
+                </div>
+            </div>
+            <div class="step animate-on-scroll">
+                <div class="step-number">4</div>
+                <div class="step-content">
+                    <h3>Download Your CSV</h3>
+                    <p>Enter a file name and click "Download CSV" to get your leads in a spreadsheet-ready format with all contact details.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Installation Section -->
+    <section class="installation" id="installation">
+        <div class="section-header animate-on-scroll">
+            <span class="section-label">Installation</span>
+            <h2 class="section-title">Get Started Now</h2>
+            <p class="section-description">Choose your preferred installation method.</p>
+        </div>
+        <div class="install-card animate-on-scroll">
+            <div class="install-methods">
+                <div class="install-method">
+                    <div class="install-method-icon">📦</div>
+                    <h4>Direct Download</h4>
+                    <p>Download the ZIP file and extract it to your desired location.</p>
+                    <a href="https://github.com/liveupx/apollo-email-scraper/archive/refs/heads/main.zip" class="btn btn-primary">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+                        Download ZIP
+                    </a>
+                </div>
+                <div class="install-method">
+                    <div class="install-method-icon">💻</div>
+                    <h4>Clone with Git</h4>
+                    <p>Clone the repository directly to your machine using Git.</p>
+                    <div class="code-block" style="text-align: left; margin-top: 1rem;">git clone https://github.com/liveupx/apollo-email-scraper.git</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contribute Section -->
+    <section class="contribute" id="contribute">
+        <div class="section-header animate-on-scroll">
+            <span class="section-label">Join Us</span>
+            <h2 class="section-title">Become a Contributor</h2>
+            <p class="section-description">Help us make Apollo Scraper even better for everyone.</p>
+        </div>
+        <div class="contribute-grid">
+            <div class="contribute-card animate-on-scroll">
+                <div class="contribute-card-icon">👩‍💻</div>
+                <h3>Contribute Code</h3>
+                <p>Whether it's fixing bugs, adding features, or improving documentation — every contribution matters.</p>
+                <a href="https://github.com/liveupx/apollo-email-scraper/fork" target="_blank" class="btn btn-secondary">Fork Repository</a>
+            </div>
+            <div class="contribute-card animate-on-scroll">
+                <div class="contribute-card-icon">☕</div>
+                <h3>Sponsor the Project</h3>
+                <p>Support the development and help keep this tool free and open source for everyone.</p>
+                <a href="https://opencollective.com/apollo-free-email-scraper" target="_blank" class="btn btn-primary">Buy Me a Coffee</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta">
+        <div class="cta-content animate-on-scroll">
+            <h2>Ready to Extract<br>Your First Leads?</h2>
+            <p>Join hundreds of sales professionals and marketers who save hours every week with Apollo Scraper.</p>
+            <div class="cta-buttons">
+                <a href="https://github.com/liveupx/apollo-email-scraper/archive/refs/heads/main.zip" class="btn btn-primary">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+                    Download Free
+                </a>
+                <a href="https://github.com/liveupx/apollo-email-scraper" target="_blank" class="btn btn-secondary">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.374 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0112 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z"/></svg>
+                    Star on GitHub
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-left">
+                <a href="#" class="logo">
+                    <div class="logo-icon">📋</div>
+                    Apollo Scraper
+                </a>
+                <div class="footer-links">
+                    <a href="https://github.com/liveupx/apollo-email-scraper" target="_blank">GitHub</a>
+                    <a href="https://www.youtube.com/@liveupx" target="_blank">YouTube</a>
+                    <a href="mailto:contact@liveupx.com">Contact</a>
+                    <a href="https://github.com/liveupx/apollo-email-scraper/blob/main/LICENSE.md" target="_blank">MIT License</a>
+                </div>
+            </div>
+            <div class="footer-right">
+                Made with ❤️ by <a href="https://liveupx.com" target="_blank" style="color: var(--accent-secondary); text-decoration: none;">Liveupx</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Create starfield
+        const starfield = document.getElementById('starfield');
+        for (let i = 0; i < 100; i++) {
+            const star = document.createElement('div');
+            star.className = 'star';
+            star.style.left = Math.random() * 100 + '%';
+            star.style.top = Math.random() * 100 + '%';
+            star.style.animationDelay = Math.random() * 4 + 's';
+            star.style.animationDuration = (3 + Math.random() * 4) + 's';
+            starfield.appendChild(star);
+        }
+
+        // Scroll animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.animate-on-scroll').forEach(el => {
+            observer.observe(el);
+        });
+
+        // Smooth scroll for navigation
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
